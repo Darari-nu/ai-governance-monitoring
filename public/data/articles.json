@@ -1,0 +1,20 @@
+[
+    {
+        "id": "eu-ai-act-implementation",
+        "country": "EU",
+        "date": "2025-11-19",
+        "title": "EU AI Act Implementation Rules Released",
+        "summary_en": "The European Commission has published detailed rules for the implementation of the AI Act, focusing on high-risk AI systems.",
+        "summary_ja": "欧州委員会がAI法の具体的な施行規則を発表しました。高リスクAIシステムの適合性評価手順などが明確化されています。",
+        "url": "#"
+    },
+    {
+        "id": "us-executive-order-update",
+        "country": "US",
+        "date": "2025-11-18",
+        "title": "White House Executive Order Update",
+        "summary_en": "New guidelines have been issued regarding the safety testing of generative AI models used in government agencies.",
+        "summary_ja": "政府機関で使用される生成AIモデルの安全性テストに関する新しいガイドラインが発行されました。",
+        "url": "#"
+    }
+]

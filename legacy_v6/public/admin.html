@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>管理画面 - AI法規制モニタリング</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* Admin specific overrides */
+        .admin-container {
+            max-width: 800px;
+            margin: var(--space-xl) auto;
+        }
+
+        .admin-section {
+            background: var(--color-bg-card);
+            padding: var(--space-lg);
+            border-radius: 8px;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--color-border);
+            margin-bottom: var(--space-lg);
+        }
+
+        .admin-section h2 {
+            font-family: var(--font-heading);
+            font-size: 1.25rem;
+            margin-bottom: var(--space-md);
+            color: var(--color-primary);
+            border-bottom: 1px solid var(--color-border);
+            padding-bottom: var(--space-sm);
+        }
+
+        .form-group {
+            margin-bottom: var(--space-md);
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--color-text-main);
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--color-border);
+            border-radius: 4px;
+            font-family: var(--font-main);
+            font-size: 1rem;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 0.75rem 1.5rem;
+            border-radius: 4px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            transition: background-color 0.2s;
+        }
+
+        .btn-primary {
+            background-color: var(--color-primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #1e3a8a;
+            /* Darker blue */
+        }
+
+        .btn-danger {
+            background-color: var(--color-accent);
+            color: white;
+        }
+
+        .status-msg {
+            margin-top: var(--space-sm);
+            font-size: 0.9rem;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: var(--space-md);
+        }
+
+        th,
+        td {
+            padding: var(--space-sm);
+            text-align: left;
+            border-bottom: 1px solid var(--color-border);
+        }
+
+        th {
+            font-weight: 600;
+            color: var(--color-text-muted);
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">管理パネル</div>
+                <nav class="nav-links">
+                    <a href="index.html">サイトに戻る</a>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <div class="container admin-container">
+        <!-- Spreadsheet Settings -->
+        <div class="admin-section">
+            <h2>Googleスプレッドシート設定</h2>
+            <p style="margin-bottom: var(--space-md); color: var(--color-text-muted);">モニタリングに使用するスプレッドシートのIDを設定してください。
+            </p>
+            <div class="form-group">
+                <label for="spreadsheet-id">スプレッドシートID</label>
+                <input type="text" id="spreadsheet-id" placeholder="例: 1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms">
+            </div>
+            <button class="btn btn-primary" onclick="saveSpreadsheetId()">IDを保存</button>
+            <div id="status-message" class="status-msg"></div>
+        </div>
+
+        <!-- Monitoring List (Read-Only View) -->
+        <div class="admin-section">
+            <h2>監視対象リスト</h2>
+            <p style="margin-bottom: var(--space-md); color: var(--color-text-muted);">
+                対象の管理はGoogleスプレッドシートで直接行ってください。<br>
+                <a href="#" id="sheet-link" target="_blank"
+                    style="color: var(--color-primary); text-decoration: underline;">スプレッドシートを開く</a>
+            </p>
+            <button class="btn btn-primary" onclick="loadSources()">リストを更新</button>
+
+            <table id="sources-table">
+                <thead>
+                    <tr>
+                        <th>国名</th>
+                        <th>URL</th>
+                        <th>メール</th>
+                    </tr>
+                </thead>
+                <tbody id="sources-tbody">
+                    <tr>
+                        <td colspan="3"
+                            style="text-align: center; color: var(--color-text-muted); padding: var(--space-md);">
+                            「リストを更新」をクリックしてデータを読み込んでください。
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 AI法規制モニタリング</p>
+        </div>
+    </footer>
+
+    <script>
+        // Save ID
+        function saveSpreadsheetId() {
+            const id = document.getElementById('spreadsheet-id').value;
+            const msg = document.getElementById('status-message');
+            if (id) {
+                localStorage.setItem('spreadsheetId', id);
+                msg.textContent = '✓ 保存しました';
+                msg.style.color = 'green';
+                updateSheetLink(id);
+            } else {
+                msg.textContent = '✗ IDを入力してください';
+                msg.style.color = 'red';
+            }
+        }
+
+        function updateSheetLink(id) {
+            const link = document.getElementById('sheet-link');
+            if (id) {
+                link.href = `https://docs.google.com/spreadsheets/d/${id}/edit`;
+            }
+        }
+
+        // Load on start
+        window.addEventListener('load', () => {
+            const savedId = localStorage.getItem('spreadsheetId');
+            if (savedId) {
+                document.getElementById('spreadsheet-id').value = savedId;
+                updateSheetLink(savedId);
+            }
+        });
+
+        // Load Sources (Mock for now, or use API if key available)
+        async function loadSources() {
+            const spreadsheetId = localStorage.getItem('spreadsheetId');
+            if (!spreadsheetId) {
+                alert('先にスプレッドシートIDを設定してください。');
+                return;
+            }
+
+            // NOTE: This requires an API Key to work from client-side. 
+            // For this static demo, we'll just show a message or mock data.
+            // In real usage, the /check command handles the backend logic.
+
+            alert('注意: ここで実際のデータを表示するには、Google Sheets APIキーの設定が必要です。\n\n/check コマンドはこの管理画面とは独立して動作します。');
+        }
+    </script>
+</body>
+
+</html>

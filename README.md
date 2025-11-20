@@ -1,101 +1,16 @@
-# AI法規制モニタリングサイト
+# React + Vite
 
-各国のAI法規制を定期的にモニタリングし、更新情報をブログ形式で蓄積・公開するWebサイトです。
+This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
-## 特徴
+Currently, two official plugins are available:
 
-- シンプルな静的HTMLサイト
-- Googleスプレッドシートで監視対象を管理
-- カスタムコマンド `/check` で一括チェック
-- ブログカード形式で記事を蓄積
+- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
+- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
 
-## セットアップ
+## React Compiler
 
-### 1. Googleスプレッドシートを作成
+The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
 
-以下の形式でスプレッドシートを作成してください：
+## Expanding the ESLint configuration
 
-| 国名 | 調査対象URL | 通知用メールアドレス |
-|------|-------------|---------------------|
-| EU | https://ec.europa.eu/ai-act | your@email.com |
-| 米国 | https://www.whitehouse.gov/ai | your@email.com |
-| 日本 | https://www8.cao.go.jp/cstp/ai/ | |
-
-### 2. スプレッドシートを公開設定
-
-1. スプレッドシートを開く
-2. 「共有」→「リンクを知っている全員が閲覧可」に設定
-3. スプレッドシートIDをコピー（URLの `/d/` と `/edit` の間の文字列）
-
-例: `https://docs.google.com/spreadsheets/d/【ここがID】/edit`
-
-### 3. スプレッドシートIDを設定
-
-`public/admin.html` を開いて、スプレッドシートIDを設定してください。
-
-### 4. サイトをチェック
-
-Claude Codeで以下のコマンドを実行：
-
-```
-/check
-```
-
-これで監視対象サイトがチェックされ、更新があれば `public/index.html` に記事が追加されます。
-
-## ファイル構成
-
-```
-251113_AIGovernance/
-├── .claude/
-│   └── commands/
-│       └── check.md          # /checkコマンドの定義
-├── public/
-│   ├── index.html            # メインページ
-│   ├── admin.html            # 管理画面
-│   └── style.css             # スタイルシート
-├── templates/
-├── requirements.md           # 要件定義書
-└── README.md                 # このファイル
-```
-
-## 使い方
-
-### 監視対象の追加・削除
-
-Googleスプレッドシートを直接編集してください。
-
-### サイトのチェック
-
-```bash
-/check
-```
-
-### サイトの表示
-
-`public/index.html` をブラウザで開いてください。
-
-## デプロイ
-
-### GitHub Pages
-
-1. GitHubリポジトリを作成
-2. `public/` フォルダをpush
-3. Settings → Pages で公開
-
-### その他
-
-- Netlify
-- Vercel
-- Cloudflare Pages
-
-など、静的サイトホスティングサービスが使えます。
-
-## カスタマイズ
-
-- `public/style.css` でデザインをカスタマイズ
-- `.claude/commands/check.md` でチェック処理をカスタマイズ
-
-## ライセンス
-
-MIT
+If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
