@@ -1,94 +1,143 @@
 import React, { useRef } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
-import { Points, PointMaterial, OrbitControls, Float } from '@react-three/drei';
-import * as random from 'maath/random/dist/maath-random.esm';
+import { Sparkles, Float } from '@react-three/drei';
+import * as THREE from 'three';
 
-function ParticleField(props) {
-    const ref = useRef();
-    const sphere = random.inSphere(new Float32Array(5000), { radius: 1.5 });
+function DataParticles() {
+    const groupRef = useRef();
+    const scrollRef = useRef(0);
+
+    // Track scroll position
+    React.useEffect(() => {
+        const handleScroll = () => {
+            // Normalize scroll 0 to 1
+            scrollRef.current = window.scrollY / (document.body.scrollHeight - window.innerHeight);
+        };
+        window.addEventListener('scroll', handleScroll);
+        return () => window.removeEventListener('scroll', handleScroll);
+    }, []);
 
     useFrame((state, delta) => {
-        ref.current.rotation.x -= delta / 10;
-        ref.current.rotation.y -= delta / 15;
+        if (groupRef.current) {
+            const scroll = scrollRef.current;
+
+            // Fly-through effect: Move particles towards camera (Z-axis)
+            // Base movement + scroll acceleration
+            // Reset position to create infinite loop feel if needed, but for now simple forward movement
+            groupRef.current.position.z = scroll * 5; // Move forward 5 units over full scroll
+
+            // Rotation accelerates with scroll
+            groupRef.current.rotation.y += delta * (0.05 + scroll * 0.2);
+
+            // Gentle wave motion
+            groupRef.current.rotation.x = Math.sin(state.clock.getElapsedTime() * 0.2) * 0.05;
+        }
     });
 
     return (
-        <group rotation={[0, 0, Math.PI / 4]}>
-            <Points ref={ref} positions={sphere} stride={3} frustumCulled={false} {...props}>
-                <PointMaterial
-                    transparent
-                    color="#0EA5E9"
-                    size={0.005}
-                    sizeAttenuation={true}
-                    depthWrite={false}
-                    opacity={0.6}
-                />
-            </Points>
+        <group ref={groupRef}>
+            {/* Primary Particles - V15 (High Visibility V14.1) */}
+            <Sparkles
+                count={300}
+                scale={[20, 20, 10]} // Spread wider and deeper
+                size={6} // V14.1 Size
+                speed={0.4}
+                opacity={0.8} // V14.1 Opacity
+                color="#bae6fd"
+                noise={0.2}
+            />
+            {/* Secondary Particles - Background depth */}
+            <Sparkles
+                count={200}
+                scale={[25, 25, 15]}
+                size={3}
+                speed={0.2}
+                opacity={0.5} // V14.1 Opacity
+                color="#ffffff"
+                noise={0.3}
+            />
         </group>
     );
 }
 
 function Hero3D() {
     return (
-        <div style={{ height: '60vh', width: '100%', position: 'relative', background: 'white' }}>
-            {/* Background Image Layer */}
+        <>
+            {/* Fixed 3D Background Layer */}
             <div style={{
-                position: 'absolute',
+                position: 'fixed',
                 top: 0,
                 left: 0,
-                width: '100%',
-                height: '100%',
-                backgroundImage: 'url(/hero.png)',
-                backgroundSize: 'cover',
-                backgroundPosition: 'center',
-                opacity: 0.3,
-                zIndex: 0
-            }} />
+                width: '100vw',
+                height: '100vh',
+                zIndex: 0,
+                pointerEvents: 'none',
+                background: '#F8FAFC' // Base background color
+            }}>
+                {/* Background Image - Fixed */}
+                <div style={{
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    width: '100%',
+                    height: '100%',
+                    backgroundImage: 'url(/hero.png)',
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center',
+                    opacity: 1.0,
+                    zIndex: 0,
+                }} />
 
-            {/* Content Layer */}
+                {/* 3D Canvas - Fixed Full Screen */}
+                <Canvas camera={{ position: [0, 0, 5], fov: 45 }} style={{ position: 'absolute', top: 0, left: 0, zIndex: 1 }}>
+                    <ambientLight intensity={0.5} />
+                    <Float speed={1} rotationIntensity={0.2} floatIntensity={0.2}>
+                        <DataParticles />
+                    </Float>
+                </Canvas>
+            </div>
+
+            {/* Hero Content - Scrollable (Part of normal flow, but visually positioned over fixed bg) */}
             <div style={{
-                position: 'absolute',
-                top: 0,
-                left: 0,
+                height: '80vh',
                 width: '100%',
-                height: '100%',
-                zIndex: 1,
+                position: 'relative',
+                zIndex: 10, // Above fixed background
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'center',
                 justifyContent: 'center',
-                pointerEvents: 'none',
-                background: 'radial-gradient(circle at center, transparent 0%, rgba(255,255,255,0.8) 100%)'
+                pointerEvents: 'none' // Let clicks pass through to potential interactive elements if any
             }}>
                 <h1 style={{
                     fontFamily: 'var(--font-heading)',
-                    fontSize: '3.5rem',
-                    fontWeight: 700,
+                    fontSize: '5rem',
+                    fontWeight: 800,
                     textAlign: 'center',
                     color: '#0F172A',
                     marginBottom: '1rem',
-                    letterSpacing: '-0.02em'
+                    letterSpacing: '-0.04em',
+                    lineHeight: 1.1,
+                    textShadow: '0 0 40px rgba(255,255,255,1.0), 0 0 20px rgba(255,255,255,0.8)'
                 }}>
-                    AI Governance Monitor
+                    AI Governance<br />Monitor
                 </h1>
                 <p style={{
                     fontSize: '1.25rem',
-                    color: '#475569',
-                    textAlign: 'center'
+                    color: '#334155',
+                    textAlign: 'center',
+                    background: 'rgba(255, 255, 255, 0.6)',
+                    backdropFilter: 'blur(8px)',
+                    padding: '0.75rem 2rem',
+                    borderRadius: '9999px',
+                    border: '1px solid rgba(255,255,255,0.4)',
+                    boxShadow: '0 4px 20px rgba(0,0,0,0.05)'
                 }}>
                     Global Regulatory Insights<br />
-                    <span style={{ fontSize: '1rem', color: 'var(--color-primary)' }}>世界のAI法規制動向</span>
+                    <span style={{ fontSize: '1rem', color: 'var(--color-primary)', fontWeight: 600 }}>世界のAI法規制動向</span>
                 </p>
             </div>
-
-            {/* 3D Layer */}
-            <Canvas camera={{ position: [0, 0, 1] }} style={{ position: 'absolute', top: 0, left: 0, zIndex: 2 }}>
-                <Float speed={2} rotationIntensity={1} floatIntensity={1}>
-                    <ParticleField />
-                </Float>
-                <OrbitControls enableZoom={false} autoRotate autoRotateSpeed={0.5} />
-            </Canvas>
-        </div>
+        </>
     );
 }
 
