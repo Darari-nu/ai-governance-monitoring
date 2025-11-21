@@ -36,23 +36,23 @@ function DataParticles() {
 
     return (
         <group ref={groupRef}>
-            {/* Primary Particles - V15 (High Visibility V14.1) */}
+            {/* Primary Particles - V15.1 Optimized */}
             <Sparkles
-                count={300}
-                scale={[20, 20, 10]} // Spread wider and deeper
-                size={6} // V14.1 Size
+                count={150} // Reduced from 300
+                scale={[20, 20, 10]}
+                size={6}
                 speed={0.4}
-                opacity={0.8} // V14.1 Opacity
+                opacity={0.8}
                 color="#bae6fd"
                 noise={0.2}
             />
-            {/* Secondary Particles - Background depth */}
+            {/* Secondary Particles - V15.1 Optimized */}
             <Sparkles
-                count={200}
+                count={100} // Reduced from 200
                 scale={[25, 25, 15]}
-                size={3}
+                size={4} // Slightly larger to compensate for lower count
                 speed={0.2}
-                opacity={0.5} // V14.1 Opacity
+                opacity={0.5}
                 color="#ffffff"
                 noise={0.3}
             />
@@ -88,8 +88,12 @@ function Hero3D() {
                     zIndex: 0,
                 }} />
 
-                {/* 3D Canvas - Fixed Full Screen */}
-                <Canvas camera={{ position: [0, 0, 5], fov: 45 }} style={{ position: 'absolute', top: 0, left: 0, zIndex: 1 }}>
+                {/* 3D Canvas - Fixed Full Screen & Optimized */}
+                <Canvas
+                    dpr={[1, 2]} // Cap pixel ratio for performance
+                    camera={{ position: [0, 0, 5], fov: 45 }}
+                    style={{ position: 'absolute', top: 0, left: 0, zIndex: 1 }}
+                >
                     <ambientLight intensity={0.5} />
                     <Float speed={1} rotationIntensity={0.2} floatIntensity={0.2}>
                         <DataParticles />
