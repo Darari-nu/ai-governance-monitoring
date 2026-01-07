@@ -1,8 +1,42 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Globe } from "./components/Globe";
 import { LatestUpdatesSection } from "./components/sections/LatestUpdates";
+import { ArchiveSection } from "./components/sections/ArchiveSection";
+
+const GAS_API_URL = "https://script.google.com/macros/s/AKfycbx8Cqq5jUmeXW-kJfXQ7zAvuswp2pijHcmnySBsRRwW2eJ20olR6uJ_jL3urygIsCNxWw/exec";
 
 function App() {
+  const [updates, setUpdates] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await fetch(GAS_API_URL);
+
+        if (!response.ok) {
+          throw new Error("Network response was not ok (" + response.status + ")");
+        }
+
+        const data = await response.json();
+
+        if (Array.isArray(data)) {
+          setUpdates(data);
+        } else {
+          throw new Error("Data is not an array");
+        }
+      } catch (err) {
+        console.error("App: Fetch error:", err);
+        setError("Failed to load updates.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
   return (
     <div className="min-h-screen bg-slate-50 overflow-x-hidden">
       {/* Hero Section */}
@@ -96,7 +130,12 @@ function App() {
       </div>
 
       {/* Latest Updates Section (Card Grid) */}
-      <LatestUpdatesSection />
+      <LatestUpdatesSection updates={updates} loading={loading} error={error} />
+
+      {/* Archive Section */}
+      {!loading && !error && updates.length > 0 && (
+        <ArchiveSection updates={updates} />
+      )}
     </div>
   );
 }
